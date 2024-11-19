@@ -14,7 +14,7 @@ class ListaDicaAdapter(private val onItemRemoved: (Dica) -> Unit) :
     private var items = listOf<Dica>()
 
     inner class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView = view.findViewById<TextView>(R.id.textViewItem)
+        val textView = view.findViewById<TextView>(R.id.titulo)
         val button = view.findViewById<ImageButton>(R.id.imageButton)
 
         fun bind(item: Dica) {
