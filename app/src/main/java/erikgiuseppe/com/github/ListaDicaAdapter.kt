@@ -1,42 +1,45 @@
 package erikgiuseppe.com.github
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import erikgiuseppe.com.github.model.Dica
 
-class ListaDicaAdapter(
-    private val context: Context,
-    private val produtos: List<Dica>
-) : RecyclerView.Adapter<ListaDicaAdapter.ViewHolder>() {
+class ListaDicaAdapter(private val onItemRemoved: (Dica) -> Unit) :
+    RecyclerView.Adapter<ListaDicaAdapter.ItemViewHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private var items = listOf<Dica>()
 
-        fun vincula(dica: Dica) {
-            val nome = itemView.findViewById<TextView>(R.id.titulo)
-            nome.text = dica.titulo
+    inner class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val textView = view.findViewById<TextView>(R.id.textViewItem)
+        val button = view.findViewById<ImageButton>(R.id.imageButton)
 
-            val descricao = itemView.findViewById<TextView>(R.id.descricao)
-            descricao.text = dica.descricao
+        fun bind(item: Dica) {
+            textView.text = item.titulo
+            textView.text = item.descricao
+            button.setOnClickListener {
+                onItemRemoved(item)
+            }
         }
     }
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): ListaDicaAdapter.ViewHolder {
-        val inflater = LayoutInflater.from(context)
-        val view = inflater.inflate(R.layout.dica_item, parent, false)
-        return ListaDicaAdapter.ViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.dica_item, parent, false)
+        return ItemViewHolder(view)
     }
 
-    override fun getItemCount(): Int = produtos.size
+    override fun getItemCount(): Int = items.size
 
-    override fun onBindViewHolder(holder: ListaDicaAdapter.ViewHolder, position: Int) {
-        val dica = produtos[position]
-        holder.vincula(dica)
+    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+        val item = items[position]
+        holder.bind(item)
+    }
+
+    fun updateDicas(newItems: List<Dica>) {
+        items = newItems
+        notifyDataSetChanged()
     }
 }

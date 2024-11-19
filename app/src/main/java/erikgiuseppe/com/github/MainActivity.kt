@@ -1,34 +1,47 @@
 package erikgiuseppe.com.github
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import android.widget.Button
+import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
-import erikgiuseppe.com.github.model.Dica
-import erikgiuseppe.com.github.ui.theme.EcoDicasTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+    private lateinit var viewModel: DicaViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activiy_main)
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = "Lista de Compras"
+
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.adapter = ListaDicaAdapter(
-            context = this,
-            produtos = listOf(
-                Dica("Teste 0", "Teste Descrição 0" ),
-                Dica("Teste 1", "Teste Descrição 1" ),
-                Dica("Teste 2", "Teste Descrição 2"),
-            )
-        )
+        val itemsAdapter = ListaDicaAdapter { item ->
+            viewModel.removeItem(item)
+        }
+        recyclerView.adapter = itemsAdapter
 
+        val button = findViewById<Button>(R.id.button)
+        val editText = findViewById<EditText>(R.id.editText)
+
+        button.setOnClickListener {
+            if (editText.text.isEmpty()) {
+                editText.error = "Preencha um valor"
+                return@setOnClickListener
+            }
+
+            viewModel.addItem(editText.text.toString(),editText.text.toString())
+            editText.text.clear()
+        }
+
+        val viewModelFactory = DicaViewModelFactory(application)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(DicaViewModel::class.java)
+
+        viewModel.dicasLiveData.observe(this) { items ->
+            itemsAdapter.updateDicas(items)
+        }
     }
-
 
 }
